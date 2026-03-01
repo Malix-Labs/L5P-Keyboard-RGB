@@ -120,7 +120,7 @@
           ];
 
           # Forgo using VCPKG hacks on local builds because pain
-          cargoExtraArgs = lib.optionals pkgs.stdenv.isLinux ''--locked --features "scrap/linux-pkg-config"'';
+          cargoExtraArgs = ''--locked --features "scrap/linux-pkg-config"'';
 
           stdenv = p: (p.stdenvAdapters.useMoldLinker p.stdenv);
           # stdenv = pkgs.stdenvAdapters.useMoldLinker pkgs.stdenv;

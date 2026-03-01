@@ -95,7 +95,7 @@
           workspaceSrc = ./.;
           workspaceSrcString = builtins.toString workspaceSrc;
 
-          resFileFilter = path: _type: builtins.match "${workspaceSrcString}/app/res/.*" path != null;
+          resFileFilter = path: _type: lib.hasPrefix "${workspaceSrcString}/app/res/" path;
           workspaceFilter = path: type: (resFileFilter path type) || (craneLib.filterCargoSources path type);
 
           src = lib.cleanSourceWith {

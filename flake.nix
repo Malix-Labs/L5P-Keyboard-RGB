@@ -86,8 +86,6 @@
 
           envVars = {
             RUST_BACKTRACE = "1";
-            # MOLD_PATH = "${pkgs.mold.out}/bin/mold";
-            # RUSTFLAGS = "-Clink-arg=-fuse-ld=${MOLD_PATH} -Clinker=clang";
             LIBCLANG_PATH = "${pkgs.llvmPackages.libclang.lib}/lib";
           };
 
@@ -123,7 +121,6 @@
           cargoExtraArgs = ''--locked --features "scrap/linux-pkg-config"'';
 
           stdenv = p: (p.stdenvAdapters.useMoldLinker p.stdenv);
-          # stdenv = pkgs.stdenvAdapters.useMoldLinker pkgs.stdenv;
 
           inherit (craneLib.crateNameFromCargoToml { cargoToml = ./app/Cargo.toml; }) pname version;
 

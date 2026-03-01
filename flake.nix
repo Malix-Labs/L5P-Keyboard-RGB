@@ -84,8 +84,7 @@
             ]
             ++ sharedDeps;
 
-          envVars = {
-            RUST_BACKTRACE = "1";
+          buildEnvVars = {
             LIBCLANG_PATH = "${pkgs.llvmPackages.libclang.lib}/lib";
           };
 
@@ -160,7 +159,7 @@
               cargoVendorDir
               ;
           }
-          // envVars;
+          // buildEnvVars;
 
           cargoArtifacts = craneLib.buildDepsOnly commonArgs;
 
@@ -195,7 +194,8 @@
             in
             pkgs.mkShell {
               LD_LIBRARY_PATH = lib.makeLibraryPath deps;
-              inherit (envVars) LIBCLANG_PATH;
+              RUST_BACKTRACE = "1";
+              inherit (buildEnvVars) LIBCLANG_PATH;
 
               buildInputs = [ rust ] ++ deps;
             };

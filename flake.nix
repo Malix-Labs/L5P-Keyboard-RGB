@@ -139,13 +139,9 @@
                 isRustWebmRepo = lib.any (
                   p: lib.hasPrefix "git+https://github.com/rustdesk-org/rust-webm" p.source
                 ) ps;
-
-                # Technically both of these come from the same repo/"set"
-                # So the if will only be true once
-                hasWebmSys = lib.any (p: p.name == "webm-sys") ps;
-                hasWebm = lib.any (p: p.name == "webm") ps;
               in
-              if isRustWebmRepo && (hasWebmSys || hasWebm) then
+              # Technically both webm and webm-sys come from the same repo/"set"
+              if isRustWebmRepo && (lib.any (p: p.name == "webm-sys") ps || lib.any (p: p.name == "webm") ps) then
                 drv.overrideAttrs (old: {
                   postPatch = (old.postPatch or "") + ''
                     sed -e '1i #include <cstdint>' -i "src/sys/libwebm/mkvparser/mkvparser.cc"

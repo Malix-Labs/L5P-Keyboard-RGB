@@ -4,10 +4,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
-    crane = {
-      url = "github:ipetkov/crane";
-      # inputs.nixpkgs.follows = "nixpkgs";
-    };
+    crane.url = "github:ipetkov/crane";
 
     flake-parts.url = "github:hercules-ci/flake-parts";
 
@@ -15,9 +12,7 @@
 
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-      };
+      inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
@@ -34,7 +29,12 @@
       systems = import inputs.systems;
 
       perSystem =
-        { system, ... }:
+        {
+          system,
+          pkgs,
+          lib,
+          ...
+        }:
         let
           pkgs = import nixpkgs {
             inherit system;
@@ -49,7 +49,6 @@
             ];
           };
 
-          nixLib = nixpkgs.lib;
           craneLib = (crane.mkLib pkgs).overrideToolchain rust;
 
           # Libraries needed both at compile and runtime
@@ -90,7 +89,7 @@
             ]
             ++ sharedDeps;
 
-          envVars = rec {
+          envVars = {
             RUST_BACKTRACE = 1;
             # MOLD_PATH = "${pkgs.mold.out}/bin/mold";
             # RUSTFLAGS = "-Clink-arg=-fuse-ld=${MOLD_PATH} -Clinker=clang";
@@ -104,7 +103,7 @@
           resFileFilter = path: _type: builtins.match "${workspaceSrcString}/app/res/.*" path != null;
           workspaceFilter = path: type: (resFileFilter path type) || (craneLib.filterCargoSources path type);
 
-          src = nixLib.cleanSourceWith {
+          src = lib.cleanSourceWith {
             src = workspaceSrc;
             filter = workspaceFilter;
           };
@@ -126,7 +125,7 @@
           ];
 
           # Forgo using VCPKG hacks on local builds because pain
-          cargoExtraArgs = nixLib.optionals pkgs.stdenv.isLinux ''--locked --features "scrap/linux-pkg-config"'';
+          cargoExtraArgs = lib.optionals pkgs.stdenv.isLinux ''--locked --features "scrap/linux-pkg-config"'';
 
           stdenv = p: (p.stdenvAdapters.useMoldLinker p.stdenv);
           # stdenv = pkgs.stdenvAdapters.useMoldLinker pkgs.stdenv;
@@ -142,14 +141,14 @@
             overrideVendorGitCheckout =
               ps: drv:
               let
-                isRustWebmRepo = nixLib.any (
-                  p: nixLib.hasPrefix "git+https://github.com/rustdesk-org/rust-webm" p.source
+                isRustWebmRepo = lib.any (
+                  p: lib.hasPrefix "git+https://github.com/rustdesk-org/rust-webm" p.source
                 ) ps;
 
                 # Technically both of these come from the same repo/"set"
                 # So the if will only be true once
-                hasWebmSys = nixLib.any (p: p.name == "webm-sys") ps;
-                hasWebm = nixLib.any (p: p.name == "webm") ps;
+                hasWebmSys = lib.any (p: p.name == "webm-sys") ps;
+                hasWebm = lib.any (p: p.name == "webm") ps;
               in
               if isRustWebmRepo && (hasWebmSys || hasWebm) then
                 drv.overrideAttrs (old: {
@@ -194,20 +193,14 @@
 
               doCheck = false;
 
-              # cargoBuildCommand = "cargo build";
-
               postFixup = ''
-                patchelf --add-rpath "${nixLib.makeLibraryPath runtimeDeps}" "$out/bin/${pname}"
+                patchelf --add-rpath "${lib.makeLibraryPath runtimeDeps}" "$out/bin/${pname}"
               '';
             }
             // envVars
           );
         in
         {
-          checks = {
-            # inherit legion-kb-rgb;
-          };
-
           packages.default = legion-kb-rgb;
 
           apps.default = {
@@ -221,7 +214,7 @@
               deps = buildInputs ++ nativeBuildInputs ++ sharedDeps ++ runtimeDeps;
             in
             pkgs.mkShell {
-              LD_LIBRARY_PATH = nixLib.makeLibraryPath deps;
+              LD_LIBRARY_PATH = lib.makeLibraryPath deps;
               inherit (envVars) LIBCLANG_PATH;
 
               buildInputs = [ rust ] ++ deps;

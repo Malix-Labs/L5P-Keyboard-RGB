@@ -207,8 +207,7 @@
 
           apps.default.program = "${legion-kb-rgb}/bin/${pname}";
 
-          devShells.default = legion-kb-rgb;
-          devShells.rust =
+          devShells.default =
             let
               deps = buildInputs ++ nativeBuildInputs ++ sharedDeps ++ runtimeDeps;
             in

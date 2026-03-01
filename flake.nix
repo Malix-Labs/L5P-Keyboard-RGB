@@ -18,15 +18,15 @@
 
   outputs =
     inputs@{
-      self,
       nixpkgs,
-      crane,
       flake-parts,
+      systems,
+      crane,
       rust-overlay,
       ...
     }:
     flake-parts.lib.mkFlake { inherit inputs; } {
-      systems = import inputs.systems;
+      systems = import systems;
 
       perSystem =
         {
@@ -187,9 +187,9 @@
           );
         in
         {
-          _module.args.pkgs = import inputs.nixpkgs {
+          _module.args.pkgs = import nixpkgs {
             inherit system;
-            overlays = [ (import inputs.rust-overlay) ];
+            overlays = [ (import rust-overlay) ];
           };
 
           packages.default = legion-kb-rgb;

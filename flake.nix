@@ -155,38 +155,28 @@
                 drv;
           };
 
-          cargoArtifacts = craneLib.buildDepsOnly (
-            {
-              inherit
-                pname
-                version
-                src
-                buildInputs
-                nativeBuildInputs
-                cargoExtraArgs
-                stdenv
-                cargoVendorDir
-                ;
-            }
-            // envVars
-          );
+          commonArgs = {
+            inherit
+              pname
+              version
+              src
+              buildInputs
+              nativeBuildInputs
+              cargoExtraArgs
+              stdenv
+              cargoVendorDir
+              ;
+          }
+          // envVars;
+
+          cargoArtifacts = craneLib.buildDepsOnly commonArgs;
 
           # The main application derivation
           legion-kb-rgb = craneLib.buildPackage (
-            {
+            commonArgs
+            // {
               meta.mainProgram = pname;
-
-              inherit
-                pname
-                version
-                src
-                cargoArtifacts
-                buildInputs
-                nativeBuildInputs
-                stdenv
-                cargoExtraArgs
-                cargoVendorDir
-                ;
+              inherit cargoArtifacts;
 
               doCheck = false;
 
@@ -194,7 +184,6 @@
                 patchelf --add-rpath "${lib.makeLibraryPath runtimeDeps}" "$out/bin/${pname}"
               '';
             }
-            // envVars
           );
         in
         {

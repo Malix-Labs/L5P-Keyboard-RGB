@@ -209,7 +209,7 @@
 
           devShells.default =
             let
-              deps = buildInputs ++ nativeBuildInputs ++ sharedDeps ++ runtimeDeps;
+              deps = buildInputs ++ nativeBuildInputs ++ runtimeDeps;
             in
             pkgs.mkShell {
               LD_LIBRARY_PATH = lib.makeLibraryPath deps;

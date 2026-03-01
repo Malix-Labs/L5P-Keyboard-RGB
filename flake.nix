@@ -174,6 +174,8 @@
           # The main application derivation
           legion-kb-rgb = craneLib.buildPackage (
             {
+              meta.mainProgram = pname;
+
               inherit
                 pname
                 version
@@ -203,10 +205,7 @@
 
           packages.default = legion-kb-rgb;
 
-          apps.default = {
-            type = "app";
-            program = "${legion-kb-rgb}/bin/${pname}";
-          };
+          apps.default.program = "${legion-kb-rgb}/bin/${pname}";
 
           devShells.default = legion-kb-rgb;
           devShells.rust =

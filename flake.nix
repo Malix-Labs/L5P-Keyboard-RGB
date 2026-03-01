@@ -36,11 +36,6 @@
           ...
         }:
         let
-          pkgs = import nixpkgs {
-            inherit system;
-            overlays = [ (import rust-overlay) ];
-          };
-
           rustVersion = "1.92.0";
 
           rust = pkgs.rust-bin.stable.${rustVersion}.default.override {
@@ -201,6 +196,11 @@
           );
         in
         {
+          _module.args.pkgs = import inputs.nixpkgs {
+            inherit system;
+            overlays = [ (import inputs.rust-overlay) ];
+          };
+
           packages.default = legion-kb-rgb;
 
           apps.default = {

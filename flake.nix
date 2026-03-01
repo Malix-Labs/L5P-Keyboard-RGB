@@ -85,7 +85,7 @@
             ++ sharedDeps;
 
           envVars = {
-            RUST_BACKTRACE = 1;
+            RUST_BACKTRACE = "1";
             # MOLD_PATH = "${pkgs.mold.out}/bin/mold";
             # RUSTFLAGS = "-Clink-arg=-fuse-ld=${MOLD_PATH} -Clinker=clang";
             LIBCLANG_PATH = "${pkgs.llvmPackages.libclang.lib}/lib";
